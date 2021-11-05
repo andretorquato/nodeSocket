@@ -16,11 +16,18 @@ function onLoad() {
   socket.emit("start", { name, avatar, email });
 
   socket.on("new_users", (data) => {
-    addUsers(data);
+    const userExist = document.getElementById(`user_${user._id}`);
+    if(!userExist) {
+      addUsers(data);
+    }
   });
 
-  socket.emit("get_users", (data) => {
-    console.log(data);
+  socket.emit("get_users", (users) => {
+    users.map(user => {
+      if(user.email !== email){
+        addUsers(user);
+      }
+    });
   });
 }
 
