@@ -4,7 +4,7 @@ import { User } from "./User";
 
 type ChatRoom = Document & {
   idUsers: User[];
-  idChatRoom: String;
+  idChatRoom: string;
 };
 
 const ChatRoomSchema = new Schema({

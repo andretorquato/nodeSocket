@@ -1,5 +1,5 @@
 const socket = io("http://localhost:3000");
-let roomId = "";
+let idChatRoom = "";
 
 function onLoad() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -18,29 +18,44 @@ function onLoad() {
 
   socket.on("new_users", (data) => {
     const userExist = document.getElementById(`user_${user._id}`);
-    if(!userExist) {
+    if (!userExist) {
       addUsers(data);
     }
   });
 
   socket.emit("get_users", (users) => {
-    users.map(user => {
-      if(user.email !== email){
+    users.map((user) => {
+      if (user.email !== email) {
         addUsers(user);
       }
     });
   });
+
+  socket.on("message", data => {
+    console.log(data);
+  });
 }
 
 document.getElementById("users_list").addEventListener("click", (e) => {
-  if(e.target && e.target.matches("li.user_name_list")){
-    const idUser= e.target.getAttribute("idUser");    
+  if (e.target && e.target.matches("li.user_name_list")) {
+    const idUser = e.target.getAttribute("idUser");
     socket.emit("start_chat", { idUser }, (data) => {
-      roomId = data.room.idChatRoom;
+      idChatRoom = data.idChatRoom;
     });
   }
 });
 
+document.getElementById("user_message").addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    const message = e.target.value;
+    e.target.value = "";
+    const data = {
+      message,
+      idChatRoom,
+    };
+    socket.emit("message", data);
+  }
+});
 onLoad();
 
 function addUsers(user) {
