@@ -31,8 +31,8 @@ function onLoad() {
     });
   });
 
-  socket.on("message", data => {
-    console.log(data);
+  socket.on("message", (data) => {
+    addMessage(data);
   });
 }
 
@@ -57,6 +57,21 @@ document.getElementById("user_message").addEventListener("keypress", (e) => {
   }
 });
 onLoad();
+
+function addMessage(data) {
+  const divMessageUser = document.getElementById("message_user");
+
+  divMessageUser.innerHTML += `
+    <span class="user_name user_name_date">
+      <img class="img_user" src="${data.user.avatar}" />
+      <strong>${data.user.name}</strong>
+      <span>${dayjs(data.message.created_at).format("DD/MM/YYYY HH:mm")}</span>
+    </span>
+    <div class="messages"><span class="chat_message">${
+      data.message.text
+    }</span></div> 
+  `;
+}
 
 function addUsers(user) {
   document.getElementById("users_list").innerHTML += `
