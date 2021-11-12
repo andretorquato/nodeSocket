@@ -5,6 +5,7 @@ import { CreateMessageService } from "../services/CreateMessageService";
 import { CreateUserService } from "../services/CreateUserService";
 import { GetAllUsersService } from "../services/GetAllUsersService";
 import { GetChatRoomByUsersService } from "../services/GetChatRoomByUsersService";
+import { GetMessagesByChatRoomService } from "../services/GetMessagesByChatRoomService";
 import { GetUserBySocketIdService } from "../services/GetUserBySocketIdService";
 
 io.on('connect', socket => {
@@ -26,6 +27,7 @@ io.on('connect', socket => {
     const createChatRoomService = container.resolve(CreateChatRoomService);
     const getChatRoomByUsersService = container.resolve(GetChatRoomByUsersService);
     const getUserBySocketIdService = container.resolve(GetUserBySocketIdService);
+    const getMessagesByChatRoomService = container.resolve(GetMessagesByChatRoomService);
 
     const userLogged = await getUserBySocketIdService.execute(socket.id);
     let room = await getChatRoomByUsersService.execute([data.idUser, userLogged.id]);
@@ -33,10 +35,12 @@ io.on('connect', socket => {
     if (!room) {
       room = await createChatRoomService.execute([data.idUser, userLogged._id]);
     }
+    
+    const messages = await getMessagesByChatRoomService.execute(room.idChatRoom);
 
     socket.join(room.idChatRoom);
 
-    callback(room);
+    callback({ room, messages });
   });
 
   socket.on("message", async data => {
