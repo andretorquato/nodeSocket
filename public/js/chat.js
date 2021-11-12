@@ -37,6 +37,7 @@ function onLoad() {
 }
 
 document.getElementById("users_list").addEventListener("click", (e) => {
+  document.getElementById("message_user").innerHTML = "";
   if (e.target && e.target.matches("li.user_name_list")) {
     const idUser = e.target.getAttribute("idUser");
     socket.emit("start_chat", { idUser }, (response) => {
@@ -73,7 +74,7 @@ function addMessage(data) {
   divMessageUser.innerHTML += `
     <span class="user_name user_name_date">
       <img class="img_user" src="${data.user.avatar}" />
-      <strong>${data.user.name}</strong>
+      <strong>${data.user.name}</strong> &nbsp;
       <span>${dayjs(data.message.created_at).format("DD/MM/YYYY HH:mm")}</span>
     </span>
     <div class="messages"><span class="chat_message">${
