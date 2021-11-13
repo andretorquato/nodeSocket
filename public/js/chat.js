@@ -17,7 +17,7 @@ function onLoad() {
   socket.emit("start", { name, avatar, email });
 
   socket.on("new_users", (data) => {
-    const userExist = document.getElementById(`user_${user._id}`);
+    const userExist = document.getElementById(`user_${data._id}`);
     if (!userExist) {
       addUsers(data);
     }
@@ -32,7 +32,17 @@ function onLoad() {
   });
 
   socket.on("message", (data) => {
-    addMessage(data);
+    if (data.message.roomId === idChatRoom) {
+      addMessage(data);
+    }
+  });
+
+  socket.on("notification", (data) => {
+    const hasNotification = document.querySelector(`#user_${data.from._id} .notification`);
+    if (data.roomId !== idChatRoom && !hasNotification) {
+      const user = document.getElementById(`user_${data.from._id}`);
+      user.insertAdjacentHTML("afterbegin", '<div class="notification"></div>');
+    }
   });
 }
 
@@ -40,6 +50,14 @@ document.getElementById("users_list").addEventListener("click", (e) => {
   document.getElementById("message_user").innerHTML = "";
   if (e.target && e.target.matches("li.user_name_list")) {
     const idUser = e.target.getAttribute("idUser");
+
+    const notification = document.querySelector(
+      `#user_${idUser} .notification`
+    );
+    if (notification) {
+      notification.remove();
+    }
+
     socket.emit("start_chat", { idUser }, (response) => {
       idChatRoom = response.room.idChatRoom;
 
@@ -47,7 +65,7 @@ document.getElementById("users_list").addEventListener("click", (e) => {
         const data = {
           message,
           user: message.to,
-        }
+        };
 
         addMessage(data);
       });
